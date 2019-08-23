@@ -1,0 +1,35 @@
+h1 {
+    color:#000000;
+}
+ 
+h3 {
+    color:#FF0000;
+}
+ 
+table {
+    border-collapse: collapse;
+}
+ 
+table th, table td {
+    padding: 5px;
+}
+
+.button {
+  background-color: #005f01;
+  border: none;
+  color: white;
+  padding: 15px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  cursor: pointer;
+}
+
+label {
+    font: 1rem 'Fira Sans', sans-serif;
+}
+input {
+    margin: .4rem;
+}

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8" />
+  <title>Kontakten</title>
+   <link rel="stylesheet" type="text/css" th:href="@{/css/style.css}"/>
+</head>
+<body>
+<h1>Kontakt List</h1>
+     
+      <a  href="form.html" th:href="@{/form}" class="button">Neues kontakt hinzufuegen</a> 
+      <br/><br/>
+      <div>
+         <table border="1">
+           <thead>
+            <tr>
+         <!--  <th>Nr.</th>-->
+               <th>Name</th>
+               <th>Telefon</th>
+               <th>Email</th>
+               <th>Geschlecht</th>
+            </tr>
+           </thead> 
+            <tbody>
+          <!--  <tr th:if="${kontakten.empty}">
+            <td > Kein Kontakt Gefunden  </td>
+        </tr> -->
+            
+         
+   <div th:if="${message}" th:utext="${message}"
+         style="color:red;font-style:italic;">  
+      </div>   
+            
+            
+            <tr th:each ="kontakt : ${kontakten}">                                          
+               <!--  <td th:utext="${kontakt.id}">...</td>   -->
+                 <td th:utext="${kontakt.getName()}">...</td>
+                 <td th:utext="${kontakt.getTelefon()}">...</td>
+                 <td th:utext="${kontakt.getEmail()}">...</td>  
+                  <td th:utext="${kontakt.getSex()}">...</td>            
+              <td >
+                  <!--   <a th:href="|@{/edit/${kontakt.getId()}}|">Editieren</a> -->
+                  <a th:href="@{/edit(id=${kontakt.getId()})}">Editieren</a>
+               </td>
+                     
+               <td >   
+                    <a th:href="@{/delete(id=${kontakt.getId()})}">Loeschen</a>
+               </td>
+            </tr>
+            </tbody>
+       </table>
+       </div>
+       
+         <div>
+      <a  href="find.html" th:href="@{/find}" class="button">Eine Anderer Kontakt Suchen</a>
+       </div>
+      
+       <div>
+                 <a  href="list.html" th:href="@{/}" class="button">Zurueck zum Kontaktlist</a>
+       </div>
+
+   <div th:if="${errorMessage}" th:utext="${errorMessage}"
+         style="color:red;font-style:italic;">  
+      </div>
+
+</body>
+</html>

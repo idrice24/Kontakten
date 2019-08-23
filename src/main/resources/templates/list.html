@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8" />
+  <title>Kontakten</title>
+   <link rel="stylesheet" type="text/css" th:href="@{/css/style.css}"/>
+</head>
+<body>
+<h1>Kontakt List</h1>
+
+      <!--  <a href="/Users/sfokofotso/Downloads/kontakt/src/main/resources/templates/pages/form.html">Neues kontakt hinzufuegen</a> -->
+     
+      <a  href="form.html" th:href="@{/form}" class="button">Neues kontakt hinzufuegen</a> 
+      <br/><br/>
+      <div>
+         <table border="1">
+           <thead>
+            <tr>
+         <!--  <th>Nr.</th>-->
+               <th>Name</th>
+               <th>Telefon</th>
+               <th>Email</th>
+               <th>Geschlecht</th>
+            </tr>
+           </thead> 
+            <tbody>
+            <tr th:if="${kontakten.empty}">
+            <td > Noch Kein Kontakt oder Nicht Mehr Als Das  </td>
+        </tr>
+            
+            <tr th:each ="kontakt : ${kontakten}">                                          
+               <!--  <td th:utext="${kontakt.id}">...</td>   -->
+                 <td th:utext="${kontakt.getName()}">...</td>
+                 <td th:utext="${kontakt.getTelefon()}">...</td>
+                 <td th:utext="${kontakt.getEmail()}">...</td>  
+                  <td th:utext="${kontakt.getSex()}">...</td>            
+              <td >
+                  <!--   <a th:href="|@{/edit/${kontakt.getId()}}|">Editieren</a> -->
+                  <a th:href="@{/edit(id=${kontakt.getId()})}">Editieren</a>
+               </td>
+                     
+               <td >   
+                    <a th:href="@{/delete(id=${kontakt.getId()})}">Loeschen</a>
+               </td>
+            </tr>
+            </tbody>
+       </table>
+       </div>
+       
+         <div>   
+            <table>
+             <tr>
+                <td> 
+                 <a href="list.html" th:href="@{/prev}" class="button">Previous</a> 
+                </td>
+                  <td> 
+                     <a href="list.html" th:href="@{/}" class="button">Home</a>
+                 </td>             
+                 <td>
+                 <a href="list.html" th:href="@{/next}" class="button">Next</a>
+                </td>
+             </tr>
+         </table>
+      </div>
+      
+       <div>
+      <a  href="find.html" th:href="@{/find}" class="button">Kontakt Suchen</a>
+       </div>
+
+   <div th:if="${errorMessage}" th:utext="${errorMessage}"
+         style="color:red;font-style:italic;"> </div>
+
+</body>
+</html>

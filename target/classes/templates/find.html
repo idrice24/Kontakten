@@ -1,0 +1,55 @@
+
+
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+   <head>
+      <meta charset="UTF-8" />
+      <title>Add Kontakt</title>
+      <link rel="stylesheet" type="text/css" th:href="@{/css/style.css}"/>
+   </head>
+   <body>
+      <h1>Kontakt Suchen:</h1>
+        
+      <form action="#"  th:action="@{/find}" th:object="${suchForm}" method="POST">        
+
+       <table>
+             <tr>
+                  <td>  <label for="searchValue">Suchbegriff:</label>  </td>
+                  <td>  <input type="text"   name="searchValue" /> </td>
+         
+                 <td> 
+                    <select name="searchOption"> 
+                            <option     value="name">Name</option>                           
+                            <option     value="sex">Sex </option>             
+                   </select>       
+                </td>      
+          </tr>
+         
+
+                <tr>       
+                     <td> <input type="reset" value="Reset">
+                </tr>
+               
+                 
+              <tr>
+                    <td><input type="submit" value="Suchen" /> 
+              </tr>
+          </table>
+      </form>
+      <br/>
+       
+      <!-- Check if errorMessage is not null and not empty -->
+       
+      <div th:if="${errorMessage}" th:utext="${errorMessage}"
+         style="color:red;font-style:italic;">
+     
+      </div>
+      
+      <div th:if="${message}" th:utext="${message}"
+         style="color:red;font-style:italic;">
+     
+      </div>
+      <a  href="list.html" th:href="@{/}" class="button">Zurueck zum Kontaktlist</a>
+       
+   </body>
+</html>

@@ -1,0 +1,92 @@
+
+
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+   <head>
+      <meta charset="UTF-8" />
+      <title>Add Kontakt</title>
+      <link rel="stylesheet" type="text/css" th:href="@{/css/style.css}"/>
+   </head>
+   <body>
+      <h1>Neue kontakt:</h1>
+        
+      <form action="#"  th:action="@{/form}" th:object="${kontaktForm}" method="POST">        
+       <table>
+       
+       <tr style = "visibility : hidden">
+                  <td>  <label for="id">Id:</label>  </td>
+                  <td>  <input    th:field="*{id}"  /> </td> 
+          </tr> 
+       
+       
+             <tr>
+                  <td>  <label for="name">Name:</label>  </td>
+                  <td>  <input type="text"   th:field="*{name}" placeholder="Schmit Andreas"  /> </td>
+         <td th:if="${#fields.hasErrors('name')}" th:errors="*{name}">Name
+                            Error</td>   
+        </tr>  
+         
+         <tr>
+                    <td> <label for="tel">Telefon</label> </td>
+                     <td>  <input type="tel" th:field="*{telefon}" placeholder="01578423829" /> </td> 
+         <td th:if="${#fields.hasErrors('telefon')}" th:errors="*{telefon}">Name
+                            Error</td>    
+         </tr>
+         
+         <tr>
+                <td>   <label for="email">Email</label> <br> </td>
+                 <td> <input type="email" th:field="*{email}" placeholder="your@email.com"/>  </td>
+                   <td th:if="${#fields.hasErrors('email')}" th:errors="*{email}">Name
+                            Error</td> 
+         </tr>
+         
+         
+          <tr>
+                <td>   <label for="sex">Sex</label> <br> </td>
+                 <td>           
+                       <div>
+                             <input type="radio" id="male" name="sex" value="MAENNLICH" >
+                             <label for="male">MAENNLICH</label>
+                       </div>
+                       <div>
+                             <input type="radio" id="female" name="sex" value=" WEIBLICH">
+                              <label for="female">WEIBLICH</label>
+                       </div>
+                        <div>
+                             <input type="radio" id="unknown" name="sex" value="UNBEKANNT" checked>
+                               <label for="unknown">UNBEKANNT</label>
+                       </div>
+                 
+                  </td>
+        <!--          <td th:if="${#fields.hasErrors('sex')}" th:errors="*{sex}">Name
+                            Error</td> -->
+         </tr>
+         
+         
+          <tr>                
+                        <td> </td>
+                     <td> <input type="reset" value="Reset">
+            </tr>
+        <tr>
+                        <td> </td>
+                     <td><input type="submit" value="Speichern" /> 
+            </tr>
+         </table>
+      </form>
+      <br/>
+       
+      <!-- Check if errorMessage is not null and not empty -->
+       
+      <div th:if="${errorMessage}" th:utext="${errorMessage}"
+         style="color:red;font-style:italic;">
+     
+      </div>
+      
+      <div th:if="${message}" th:utext="${message}"
+         style="color:red;font-style:italic;">
+     
+      </div>
+      <a  href="list.html" th:href="@{/}" class="button">Zurueck zum Kontaktlist</a>
+       
+   </body>
+</html>
