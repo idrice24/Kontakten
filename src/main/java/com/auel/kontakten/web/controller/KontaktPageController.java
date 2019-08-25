@@ -33,7 +33,7 @@ public class KontaktPageController {
 	
 	
 	@RequestMapping(value = {"/", "/list"}, method = RequestMethod.GET) 
-	public String getHomePage(@RequestParam(required=false, defaultValue = "2") int pageSize,
+	public String getHomePage(@RequestParam(required=false, defaultValue = "3") int pageSize,
 			Model model){   
 		long max = kontaktDao.count();
 		
@@ -54,7 +54,7 @@ public class KontaktPageController {
     }
 	
 	@RequestMapping(value = "/next", method = RequestMethod.GET) 
-	public String getNextPage(@RequestParam(required=false, defaultValue = "2") int pageSize,
+	public String getNextPage(@RequestParam(required=false, defaultValue = "3") int pageSize,
 			Model model){   
 		long max = kontaktDao.count();
 		Pageable firstPageWithTwoElements;
@@ -87,7 +87,7 @@ public class KontaktPageController {
     }
 	
 	@RequestMapping(value = "/prev", method = RequestMethod.GET) 
-	public String getPreviousPage(@RequestParam(required=false, defaultValue = "2") int pageSize,
+	public String getPreviousPage(@RequestParam(required=false, defaultValue = "3") int pageSize,
 			Model model){   
 		long max = kontaktDao.count();
 		Pageable firstPageWithTwoElements;
@@ -99,7 +99,7 @@ public class KontaktPageController {
 			model.addAttribute("errorMessage", "Noch Kein Kontakt oder Nicht Mehr Als Das ");
 		}
 		
-        if(pageSize*pageNo < max && pageNo > 0) 
+        if(pageSize*pageNo <= max && pageNo > 0) 
         {	
     		--pageNo;
         	firstPageWithTwoElements = PageRequest.of(pageNo, pageSize);       
