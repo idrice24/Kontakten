@@ -6,11 +6,11 @@
    <link rel="stylesheet" type="text/css" th:href="@{/css/style.css}"/>
 </head>
 <body>
-<h1>Kontakt List</h1>
+<h1>Suchergebnisse</h1>
      
-      <a  href="form.html" th:href="@{/form}" class="button">Neues kontakt hinzufuegen</a> 
-      <br/><br/>
-      <div>
+   <a  href="form.html" th:href="@{/form}" class="button">Neues kontakt hinzufuegen</a> 
+    <br/><br/>
+    <div>
          <table border="1">
            <thead>
             <tr>
@@ -19,49 +19,102 @@
                <th>Telefon</th>
                <th>Email</th>
                <th>Geschlecht</th>
+                <th>Geburstag</th>
+               <th>Photo</th>
             </tr>
            </thead> 
             <tbody>
           <!--  <tr th:if="${kontakten.empty}">
             <td > Kein Kontakt Gefunden  </td>
-        </tr> -->
-            
-         
-   <div th:if="${message}" th:utext="${message}"
-         style="color:red;font-style:italic;">  
-      </div>   
-            
-            
+          </tr>  searchValue=${searchValue}-->
+                                 
             <tr th:each ="kontakt : ${kontakten}">                                          
                <!--  <td th:utext="${kontakt.id}">...</td>   -->
                  <td th:utext="${kontakt.getName()}">...</td>
                  <td th:utext="${kontakt.getTelefon()}">...</td>
                  <td th:utext="${kontakt.getEmail()}">...</td>  
-                  <td th:utext="${kontakt.getSex()}">...</td>            
-              <td >
-                  <!--   <a th:href="|@{/edit/${kontakt.getId()}}|">Editieren</a> -->
-                  <a th:href="@{/edit(id=${kontakt.getId()})}">Editieren</a>
-               </td>
+                 <td th:utext="${kontakt.getSex()}">...</td> 
+                 <td th:utext="${kontakt.getBirthday()}">...</td>  
+               <!--    <td th:utext="${kontakt.getPhoto()}">...</td>-->
+                 <td> <img th:if="*{kontakt.getPhoto() != null}" th:src="@{'data:image/jpg;base64,' + *{T(org.springframework.util.Base64Utils).encodeToString(photo)}}"/></td>                  
+                   <td > <a th:href="@{/edit( id=${kontakt.getId()} )}">
+                   <span style='font-size:30px;'>&#9998;</span>
+                   </a> </td>
                      
                <td >   
-                    <a th:href="@{/delete(id=${kontakt.getId()})}">Loeschen</a>
-               </td>
+                    <a th:href="@{/deleteresult(id=${kontakt.getId()}, page=${currentPage}, size=${size}, searchValue=${searchValue} )}">
+                    <span style='font-size:30px;'>&#10008;</span>
+                    </a>
+               </td>  
+               <!-- https://www.w3schools.com/charsets/ref_utf_dingbats.asp -->                   
             </tr>
+               
             </tbody>
-       </table>
-       </div>
-       
-         <div>
-      <a  href="find.html" th:href="@{/find}" class="button">Eine Anderer Kontakt Suchen</a>
-       </div>
+         </table>
+   </div>
+   
+      <div>
+    <table>
+      <tr>
+         <td>
+          <ul>
+            <li th:class="${currentPage}==${status.index}?'active':'' " th:each ="p,status : ${pages}"> 
+             <a th:href="@{find(page=${status.index}, size=${size}, searchValue=${searchValue})}" th:utext="${status.index}" ></a>
+            </li>
+           </ul>
+         </td>
+       </tr>  
+   </table>     
+  </div>
+  
+      
+      
+      
       
        <div>
-                 <a  href="list.html" th:href="@{/}" class="button">Zurueck zum Kontaktlist</a>
+           <a  href="list.html" th:href="@{/}" class="button">Zurueck zum Kontaktlist</a>
        </div>
 
-   <div th:if="${errorMessage}" th:utext="${errorMessage}"
+         
+     <div>    
+      <form action="#"  th:action="@{/find}" method="GET">        
+
+       <table>
+             <tr>
+                  <td>  <label for="searchValue">Kontakt Suchen:</label>  </td>
+               <!--   <td>  <input type="text"   name="searchValue"  placeholder="suchwort eingeben"/> </td>                  
+                  <td style = "visibility : hidden"> 
+                    <select name="searchOption"> 
+                            <option     value="name">Name</option>                           
+                            <option     value="sex">Sex </option>             
+                   </select>       
+                </td>  -->                                                                                   
+                    <td><input class="submit"  type="search" name="searchValue"  placeholder="suchwort eingeben" required/>  </td>
+                    <td><button class="submit">Suchen</button>
+                </tr>
+               <!--   <tr>
+                  <td class="error" th:if="${#fields.hasErrors('searchValue')}" th:errors="*{searchValue}">Search
+                            Error</td> 
+                
+                </tr> -->   
+          </table>
+      </form>
+      <br/>
+       
+      <!-- Check if errorMessage is not null and not empty -->
+       
+      <div th:if="${errorMessageFind}" th:utext="${errorMessageFind}"  
          style="color:red;font-style:italic;">  
       </div>
-
+      
+       <div th:if="${message}" th:utext="${message}" 
+         style="color:red;font-style:italic;">
+      </div>    
+ 
+   
+     
+      
+    </div>
+ 
 </body>
 </html>

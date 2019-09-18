@@ -1,21 +1,53 @@
-h1 {
+h1,h2 {
     color:#000000;
 }
  
 h3 {
     color:#FF0000;
 }
+
+#error {
+  text-align: center;
+  padding: 30px 40px;
+  font-size: 50px;
+} 
+ 
  
 table {
     border-collapse: collapse;
 }
  
 table th, table td {
-    padding: 5px;
+    padding: 10px;
+}
+
+.submit {
+  background-color: blue+white;
+  border: none;
+  padding: 10px 26px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 10px;
+  margin: 2px 1px;
+  cursor: pointer;
 }
 
 .button {
   background-color: #005f01;
+  border: none;
+  color: white;
+  padding: 15px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  cursor: pointer;
+}
+
+.pn {
+  background-color: #00ce02;
   border: none;
   color: white;
   padding: 15px 32px;
@@ -32,4 +64,35 @@ label {
 }
 input {
     margin: .4rem;
+}
+
+.error {
+	color:red;
+	font-style:italic;
+}
+
+ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+li {
+  float: left;
+}
+
+li a {
+  display: inline-block;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+}
+
+li a:hover {
+  background-color: #111;
+}
+
+.active {
+  background-color: #00ce02;
 }

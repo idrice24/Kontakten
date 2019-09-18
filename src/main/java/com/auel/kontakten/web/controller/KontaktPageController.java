@@ -1,6 +1,18 @@
 package com.auel.kontakten.web.controller;
 
+import java.io.IOException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.TreeMap;
+
+import javax.validation.Valid;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,212 +24,136 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.auel.kontakten.dao.KontaktDao;
 import com.auel.kontakten.model.Kontakt;
-import com.auel.kontakten.model.KontaktForm;
-import com.auel.kontakten.model.Sex;
-import com.auel.kontakten.model.SuchForm;
+
+
 
 @Controller
-
 public class KontaktPageController {
 	private static final Logger logger = LoggerFactory.getLogger(KontaktPageController.class);
-   
+
 	@Autowired
 	private KontaktDao kontaktDao;
-	private int pageNo=-1; //save dynamically the number of element
-	
-	
-	@RequestMapping(value = {"/", "/list"}, method = RequestMethod.GET) 
-	public String getHomePage(@RequestParam(required=false, defaultValue = "3") int pageSize,
-			Model model){   
-		long max = kontaktDao.count();
+
+	@RequestMapping(value = {"/", "/list", "/index", "/prev", "/next"}, 
+			method = RequestMethod.GET) 
+	public String getHomePage(@RequestParam(required=false, defaultValue = "0") int page,
+				@RequestParam(required=false, defaultValue = "0") int currentPage,
+				@RequestParam(required=false, defaultValue = "4") int size,
+				Model model) {   
 		
-		if(pageSize<2) {
-			model.addAttribute("errorMessage", "Page-size muss grosser als ein");
-		}
-		/*if(max<=0) {
-			model.addAttribute("errorMessage", "Sie haben noch keine Kontakt hingefuegt");
-		}*/
-		if (pageSize <= max) {
-			pageNo = 0;
-		}
-		Pageable firstPageWithTwoElements = PageRequest.of(0, pageSize);   	
-     	    
-		Page<Kontakt> kontakten = kontaktDao.findAll(firstPageWithTwoElements);
-		model.addAttribute("kontakten", kontakten);		
-		return "list";
-    }
-	
-	@RequestMapping(value = "/next", method = RequestMethod.GET) 
-	public String getNextPage(@RequestParam(required=false, defaultValue = "3") int pageSize,
-			Model model){   
-		long max = kontaktDao.count();
-		Pageable firstPageWithTwoElements;
+			Pageable firstPageWithTwoElements = PageRequest.of(page ,size);   		     	    
+			Page<Kontakt> kontakten = kontaktDao.findAll(firstPageWithTwoElements);
+			Map<Kontakt, String> mapKontakten = new HashMap<Kontakt, String>();
+			kontakten.stream()
+		    //.filter(k -> 
+			.forEach( k -> { 
+			     if(k.getPhoto() != null ) {
+			        mapKontakten.put(k, Base64.getEncoder().encodeToString(k.getPhoto()) );
+			     } else {
+			    	mapKontakten.put(k,"");
+			     }
+			});
+			model.addAttribute("mapKontakten", mapKontakten);
+			model.addAttribute("pages", new int[kontakten.getTotalPages()]);
+			logger.info(new int[kontakten.getTotalPages()].toString() + "print of pages");
+			model.addAttribute("size", size);
+			model.addAttribute("currentPage", page);
+			return "list";
+    }		
+
+	@RequestMapping(value = "/delete", method = RequestMethod.GET)
+	public String deleteKontakt(@RequestParam(name = "id") int id) {
+			kontaktDao.deleteById(id);
+			logger.info(id + "Geloescht");
+			return "redirect:/list";
+	}
 		
-		if(pageSize<2) {
-			model.addAttribute("errorMessage", "Page-size muss grosser als ein");
-		}
-		if(max<=0) {
-			model.addAttribute("errorMessage", "Sie haben noch keine Kontakt hingefuegt");
-		}
-		
-        if(pageSize*pageNo< max && pageNo < (max/pageSize)) 
-        {	
-        	++pageNo;
-        	firstPageWithTwoElements = PageRequest.of(pageNo, pageSize);   	
-        }
-        else 
-        {
-        	firstPageWithTwoElements = PageRequest.of(pageNo, pageSize);
-        	if(pageNo > 0) 
-        	{
-        	   pageNo=(int) (max/pageSize);;
-        	}
-        }
-        
-		Page<Kontakt> kontakten = kontaktDao.findAll(firstPageWithTwoElements);
-		model.addAttribute("kontakten", kontakten);
-		logger.info("methode getKontakten.");
-		return "list";
-    }
-	
-	@RequestMapping(value = "/prev", method = RequestMethod.GET) 
-	public String getPreviousPage(@RequestParam(required=false, defaultValue = "3") int pageSize,
-			Model model){   
-		long max = kontaktDao.count();
-		Pageable firstPageWithTwoElements;
-		
-		if(pageSize<2) {
-			model.addAttribute("errorMessage", "Page-size muss grosser als ein");
-		}
-		if(max<=0) {
-			model.addAttribute("errorMessage", "Noch Kein Kontakt oder Nicht Mehr Als Das ");
-		}
-		
-        if(pageSize*pageNo <= max && pageNo > 0) 
-        {	
-    		--pageNo;
-        	firstPageWithTwoElements = PageRequest.of(pageNo, pageSize);       
-        }
-        else 
-        {
-        	if(pageNo < 0) 
-        	{
-        	    pageNo=0;
-        	}
-        	firstPageWithTwoElements = PageRequest.of(pageNo, pageSize);		
-        }
-        
-		Page<Kontakt> kontakten = kontaktDao.findAll(firstPageWithTwoElements);
-		model.addAttribute("kontakten", kontakten);
-		logger.info("methode getKontakten.");
-		return "list";
-    }
-	
+	@RequestMapping(value = {"/form", "/form/{yes}"}, method = RequestMethod.GET)
+	public String showKontaktForm(@PathVariable("yes") Optional<Integer> yes, Model model) {
+		if (yes.isPresent()) {
+			model.addAttribute("successMessage", "Kontakt wurde erfolgreich gespeichen");	
+		  }
+			model.addAttribute("kontaktForm", new Kontakt());
+			return "form";
+	}
 	
 	@RequestMapping(value = "/form", method = RequestMethod.POST)
-	public String saveKontakt(@ModelAttribute("kontaktForm") KontaktForm kontaktForm,
-			BindingResult result, Model model){
-
-		if(kontaktForm.getEmail().length() < 5 || result.hasErrors()) 
-		{
+	public String submitKontakt(@Valid @ModelAttribute("kontaktForm") Kontakt kontaktForm, BindingResult result,
+			@ModelAttribute("file") MultipartFile file,			
+			Model model) throws IOException 
+	{	
+		if ( result.hasErrors() ) {
 			logger.error("Validation errors in the submitting form.");
-			model.addAttribute("errorMessage", "Ungueldtigen Eingaben. Geben Sie kontakt Daten erneuert");
+			//model.addAttribute("errorMessage", "error in: " + result.toString());
+		     model.addAttribute("errorMessage", "error in: "+ kontaktForm.toString());
+			//model.addAttribute("errorMessage", "Ungueldtigen Eingaben. Geben Sie kontakt Daten erneuert");
 			return "form";
+		} else {
+			if( file.getBytes() != null) {
+				     kontaktForm.setPhoto(file.getBytes());
+			} else {	
+				     logger.error("Upload-ERROR");
+			    model.addAttribute("errorMessage", "Uplaod des Photos unerfolgreich");				
+			    return "form";
+		    }		    
+			try {
+				kontaktDao.save(kontaktForm);		
+				logger.info(kontaktForm.toString() + "has been successfully saved.");
+			} catch (Exception e) {
+				logger.error("saving" + kontaktForm.toString() + "has been unsuccessfully: ", e);
+			}			
+		    return "redirect:/form/1";
 		}
-		else 
-		{
-		   Kontakt  kontakt = new Kontakt();
-		   kontakt.setName(kontaktForm.getName());
-		   kontakt.setEmail(kontaktForm.getEmail());
-		   kontakt.setTelefon(kontaktForm.getTelefon());
-		   kontakt.setSex(kontaktForm.getSex());
-		   if(kontaktForm.getId() != 0){		
-		   kontakt.setId(kontaktForm.getId());		
-		   }
-	       kontaktDao.save(kontakt);
-	       logger.info( kontaktForm.toString() + "has been successfully submitted.");
-		   return "redirect:/list";
-		}
-	}
-	
-	@RequestMapping(value = "/form", method = RequestMethod.GET)
-	public String showKontaktForm(Model model){	
-		     model.addAttribute("kontaktForm",new KontaktForm());
-			return "form";
-	}
-	
-	
-	@RequestMapping(value = "/delete", method = RequestMethod.GET)
-	public String deleteKontakt(@RequestParam(name ="id") int id) {
-		kontaktDao.deleteById(id);
-		logger.info(id + "Geloescht");
-	    return "redirect:/list";
 	}
 	
 	@RequestMapping(value = "/edit", method = RequestMethod.GET)
-	public String editKontakt(@RequestParam(name="id") int id, Model model) {	
+	public String editKontakt(@RequestParam(name = "id") int id, Model model) {
 		Kontakt kontakt = kontaktDao.findById(id).get();
-		KontaktForm  kontaktForm = new KontaktForm();
-		kontaktForm.setName(kontakt.getName());
-		kontaktForm.setEmail(kontakt.getEmail());
-	    kontaktForm.setTelefon(kontakt.getTelefon());
-	    kontaktForm.setSex(kontakt.getSex());
-	    kontaktForm.setId(kontakt.getId());
-	    logger.info("findbyId ok in editKontakt " + kontaktForm.toString());
-	    model.addAttribute("kontaktForm", kontaktForm);
-	    return "form";
+		logger.info("findbyId ok in editKontakt " + kontakt.toString());
+		model.addAttribute("kontaktForm", kontakt);
+		return "form";
 	}
 	
-	@RequestMapping(value = "/find", method = RequestMethod.GET) //get the find url
-	public String findForm(Model model){	
-		    model.addAttribute("suchForm", new SuchForm());
-			return "find";
-	}
-	
-	@RequestMapping(value = "/find", method = RequestMethod.POST)
-	public String findKontakt(@ModelAttribute("suchForm") SuchForm suchForm, Model model){
-		logger.info("You search "+suchForm.getSearchValue()+ " " + suchForm.getSearchOption());
-		  logger.info("Name valus for search submitted.");
-		if(suchForm.getSearchValue().isEmpty() || suchForm.getSearchValue() == null) 
-		{	
-			 logger.error("No search submitted.");
-			model.addAttribute("errorMessage", "Geben Sie ein Such-Wert und wählen Sie ein Option");
-			return "find";
-		}
-		else 
-		{
-			
-		List <Kontakt> kontaktFound = null;
-		   if(suchForm.getSearchOption().equals("name"))    
-		   { 
-			   logger.info("Name value for search submitted.");
-			   kontaktFound = kontaktDao.findByName(suchForm.getSearchValue());
-		   }
-		   else if(suchForm.getSearchOption().equals("sex"))
-		   {
-			   logger.error("Sex value for search submitted.");
-			   Sex sex =  Sex.valueOf(suchForm.getSearchValue());
-			   kontaktFound = kontaktDao.findBySex( sex );
-		   }
-	       logger.info("Search has been successfully submitted.");
-	       if(kontaktFound.size()==0 || kontaktFound==null) 
-	       {
-	           model.addAttribute("message", "Kein Passenden Kontakt Gefunden");
-	       }
-	       else
-	       {
-	    	   model.addAttribute("kontakten", kontaktFound); 
-	       }    
-		   return "result";
+	@RequestMapping(value = {"/find", "/deleteresult"}, method = {RequestMethod.GET} )
+	public String findKontakt(Model model,
+			@RequestParam(name="id", required=false, defaultValue = "0") int id,
+			@RequestParam(required=false, defaultValue = "0") int currentPage,
+			@RequestParam(required=false, defaultValue = "0") int page,
+			@RequestParam(required=false, defaultValue = "4") int size,
+			@RequestParam(required=false, defaultValue = "") String searchValue) {
+		 logger.info("keyword has been submitted for search.");
+		 if(searchValue.isEmpty()) {
+			logger.error("keyword is empty");
+			model.addAttribute("errorMessageFind", "Geben Sie ein Suchwort");
+			return "result";
+		} else {			
+			logger.info("keyword value for search submitted.");
+			//List<Kontakt> kontaktFound = kontaktDao.suchen("%"+searchValue()+"%");		
+			//Page<Kontakt> kontaktFound = kontaktDao.suchenPageIgnoreCase("%"+searchValue()+"%",PageRequest.of(page,size));
+			if(id != 0) {
+				kontaktDao.deleteById(id);
+			}
+			Page<Kontakt> kontaktFound = kontaktDao.suchenPageIgnoreCase("%"+searchValue+"%",PageRequest.of(page,size));  
+			logger.info("Search has been successfully submitted.");
+			if (kontaktFound.isEmpty()) {
+				model.addAttribute("message", "Kein Passenden Kontakt Gefunden");				
+			} else {
+				model.addAttribute("kontakten", kontaktFound);
+			    model.addAttribute("pages", new int[kontaktFound.getTotalPages()]);
+		     	model.addAttribute("size", size);
+		    	model.addAttribute("currentPage", page);
+		    	model.addAttribute("searchValue", searchValue);
+			}
+			return "result";
 		}
 	}
-	
-	
+
 }
-  
